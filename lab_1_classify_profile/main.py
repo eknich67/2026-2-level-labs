@@ -27,28 +27,24 @@ def tokenize(text: str) -> Sequence[str] | None:
         Returns None if input text is not a string.
     """
     if not isinstance(text, str):
-     return None
+        return None
 
     tokens = []
-    current_token = ""
 
-    for char in text:
-        if char.isalpha():
-            current_token = current_token + char.lower()
-        else:
-            if current_token:
-                tokens.append(current_token)
-                current_token = ""
+    for part in text.lower().split():
+        current_token = ""
 
-    if current_token:
-        tokens.append(current_token)
+        for char in part:
+            if char.isalpha():
+                current_token = current_token + char
+
+        if current_token:
+            tokens.append(current_token)
 
     return tokens
 
 
 def remove_stop_words(tokens: Sequence[str], stop_words: Sequence[str]) -> Sequence[str] | None:
-    result = []
-
 
     """
     Removes stop words
@@ -60,10 +56,12 @@ def remove_stop_words(tokens: Sequence[str], stop_words: Sequence[str]) -> Seque
         Sequence[str] | None: Sequence of tokens without stop words.
         Returns None in case of incorrect input types.
     """
-    if not isinstance(tokens, (list,tuple)):
+    if not isinstance(tokens, (list, tuple)):
         return None
-    if not isinstance(stop_words,(list, tuple)):
-        return None
+
+    if not isinstance(stop_words, (list, tuple)):
+        return tokens
+
     result = []
 
     for token in tokens:
@@ -85,6 +83,14 @@ def calculate_frequencies(tokens: Sequence[str]) -> dict[str, float] | None:
     """
     if not isinstance(tokens, (list, tuple)):
         return None
+
+    for token in tokens:
+        if not isinstance(token, str):
+            return None
+
+    if len(tokens) == 0:
+        return {}
+
     frequencies = {}
 
     for token in tokens:
@@ -171,7 +177,7 @@ def create_language_profile(
     if frequencies is None:
         return None
 
-    return (language, frequencies, len(tokens))
+    return (language, frequencies, len(frequencies))
 
 
 def check_profile(profile: ProfileType) -> bool:
@@ -185,6 +191,7 @@ def check_profile(profile: ProfileType) -> bool:
         bool: Returns True if the profile has right structure and types,
         otherwise returns False.
     """
+
     if not isinstance(profile, tuple):
         return False
 
@@ -206,6 +213,16 @@ def check_profile(profile: ProfileType) -> bool:
 
     if isinstance(number_of_tokens, bool):
         return False
+
+    if number_of_tokens < 0:
+        return False
+
+    for word in frequencies:
+        if not isinstance(word, str):
+            return False
+
+        if not isinstance(frequencies[word], float):
+            return False
 
     return True
 
@@ -241,19 +258,18 @@ def compare_profiles_by_top_n(
     if unknown_top_words is None:
         return None
 
-    distance = 0.0
+    compare_top_words = get_top_n_words(compare_frequencies, top_n)
+
+    if compare_top_words is None:
+        return None
+
+    common_words = 0
 
     for word in unknown_top_words:
-        unknown_frequency = unknown_frequencies[word]
+        if word in compare_top_words:
+            common_words = common_words + 1
 
-        if word in compare_frequencies:
-            compare_frequency = compare_frequencies[word]
-        else:
-            compare_frequency = 0.0
-
-        distance = distance + abs(unknown_frequency - compare_frequency)
-
-    return distance
+    return common_words / len(unknown_top_words)
 
 
 def detect_language_by_top_n(
@@ -284,18 +300,28 @@ def detect_language_by_top_n(
     if not isinstance(top_n, int) or isinstance(top_n, bool) or top_n <= 0:
         return None
 
-    distance_1 = compare_profiles_by_top_n(
-        unknown_profile, profile_1, top_n
+    score_1 = compare_profiles_by_top_n(
+        unknown_profile,
+        profile_1,
+        top_n
     )
 
-    distance_2 = compare_profiles_by_top_n(
-        unknown_profile, profile_2, top_n
+    score_2 = compare_profiles_by_top_n(
+        unknown_profile,
+        profile_2,
+        top_n
     )
 
-    if distance_1 is None or distance_2 is None:
+    if score_1 is None or score_2 is None:
         return None
 
-    if distance_1 < distance_2:
+    if score_1 > score_2:
+        return profile_1[0]
+
+    if score_2 > score_1:
+        return profile_2[0]
+
+    if profile_1[0] < profile_2[0]:
         return profile_1[0]
 
     return profile_2[0]
