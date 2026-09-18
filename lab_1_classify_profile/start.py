@@ -3,16 +3,26 @@ Language detection starter.
 """
 
 # pylint: disable=unused-variable, duplicate-code
-from main import (
-     tokenize,
-    remove_stop_words,
-    calculate_frequencies,
-    get_top_n_words,
-    create_language_profile,
-    check_profile,
-    compare_profiles_by_top_n,
-    detect_language_by_top_n,
-)
+try:
+    from .main import (
+        tokenize,
+        remove_stop_words,
+        calculate_frequencies,
+        get_top_n_words,
+        create_language_profile,
+        compare_profiles_by_top_n,
+        detect_language_by_top_n,
+    )
+except ImportError:
+    from main import (
+        tokenize,
+        remove_stop_words,
+        calculate_frequencies,
+        get_top_n_words,
+        create_language_profile,
+        compare_profiles_by_top_n,
+        detect_language_by_top_n,
+    )
 
 def main() -> None:
     """
