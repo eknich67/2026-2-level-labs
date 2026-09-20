@@ -62,21 +62,13 @@ def remove_stop_words(tokens: Sequence[str], stop_words: Sequence[str]) -> Seque
     if not isinstance(stop_words, (list, tuple)):
         return None
 
-    for token in tokens:
-        if not isinstance(token, str):
-            return None
+    if not all(isinstance(token, str) for token in tokens):
+        return None
 
-    for word in stop_words:
-        if not isinstance(word, str):
-            return None
+    if not all(isinstance(word, str) for word in stop_words):
+        return None
 
-    result = []
-
-    for token in tokens:
-        if token not in stop_words:
-            result.append(token)
-
-    return result
+    return [token for token in tokens if token not in stop_words]
 
 
 def calculate_frequencies(tokens: Sequence[str]) -> dict[str, float] | None:
@@ -92,20 +84,16 @@ def calculate_frequencies(tokens: Sequence[str]) -> dict[str, float] | None:
     if not isinstance(tokens, (list, tuple)):
         return None
 
-    for token in tokens:
-        if not isinstance(token, str):
-            return None
+    if not all(isinstance(token, str) for token in tokens):
+        return None
 
-    if len(tokens) == 0:
+    if not len(tokens):
         return {}
 
     frequencies = {}
 
     for token in tokens:
-        if token in frequencies:
-            frequencies[token] = frequencies[token] + 1
-        else:
-            frequencies[token] = 1
+        frequencies[token] = frequencies.get(token, 0) + 1
 
     for token in frequencies:
         frequencies[token] = frequencies[token] / len(tokens)
@@ -131,17 +119,10 @@ def get_top_n_words(freq_dict: dict[str, float], top_n: int) -> Sequence[str] | 
     if not isinstance(top_n, int) or isinstance(top_n, bool) or top_n <= 0:
         return None
 
-    words = list(freq_dict.keys())
-
-    for i in range(len(words)):
-        for j in range(i + 1, len(words)):
-            if freq_dict[words[j]] > freq_dict[words[i]]:
-                words[i], words[j] = words[j], words[i]
-            elif freq_dict[words[j]] == freq_dict[words[i]]:
-                if words[j] < words[i]:
-                    words[i], words[j] = words[j], words[i]
-
-    return words[:top_n]
+    return sorted(
+        freq_dict,
+        key=lambda word: (-freq_dict[word], word),
+    )[:top_n]
 
 # Mark 6.
 
@@ -185,7 +166,7 @@ def create_language_profile(
     if frequencies is None:
         return None
 
-    return (language, frequencies, len(frequencies))
+    return language, frequencies, len(frequencies)
 
 
 def check_profile(profile: ProfileType) -> bool:
@@ -206,9 +187,7 @@ def check_profile(profile: ProfileType) -> bool:
     if len(profile) != 3:
         return False
 
-    language = profile[0]
-    frequencies = profile[1]
-    number_of_tokens = profile[2]
+    language, frequencies, number_of_tokens = profile
 
     if not isinstance(language, str):
         return False
@@ -216,21 +195,17 @@ def check_profile(profile: ProfileType) -> bool:
     if not isinstance(frequencies, dict):
         return False
 
-    if not isinstance(number_of_tokens, int):
-        return False
-
-    if isinstance(number_of_tokens, bool):
+    if not isinstance(number_of_tokens, int) or isinstance(number_of_tokens, bool):
         return False
 
     if number_of_tokens < 0:
         return False
 
-    for word in frequencies:
-        if not isinstance(word, str):
-            return False
+    if not all(isinstance(word, str) for word in frequencies):
+        return False
 
-        if not isinstance(frequencies[word], float):
-            return False
+    if not all(isinstance(frequencies[word], float) for word in frequencies):
+        return False
 
     return True
 
@@ -271,11 +246,7 @@ def compare_profiles_by_top_n(
     if compare_top_words is None:
         return None
 
-    common_words = 0
-
-    for word in unknown_top_words:
-        if word in compare_top_words:
-            common_words = common_words + 1
+    common_words = sum(word in compare_top_words for word in unknown_top_words)
 
     return common_words / len(unknown_top_words)
 
@@ -329,10 +300,7 @@ def detect_language_by_top_n(
     if score_2 > score_1:
         return profile_2[0]
 
-    if profile_1[0] < profile_2[0]:
-        return profile_1[0]
-
-    return profile_2[0]
+    return profile_1[0] if profile_1[0] < profile_2[0] else profile_2[0]
 
 # Mark 8
 
