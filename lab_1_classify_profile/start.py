@@ -2,11 +2,21 @@
 Language detection starter.
 """
 
+import sys
+from pathlib import Path
+
 # pylint: disable=unused-variable, duplicate-code
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from lab_1_classify_profile.main import (
     calculate_frequencies,
+    calculate_mse,
+    compare_profiles_by_mse,
     compare_profiles_by_top_n,
     create_language_profile,
+    detect_language_by_mse,
     detect_language_by_top_n,
     get_top_n_words,
     remove_stop_words,
@@ -60,9 +70,17 @@ def main() -> None:
         15
     )
 
-    print(result)
+    mse_to_en = compare_profiles_by_mse(unknown_profile, en_profile)
+    mse_to_de = compare_profiles_by_mse(unknown_profile, de_profile)
+    result_by_mse = detect_language_by_mse(unknown_profile, en_profile, de_profile)
+
+    print("Top-n result:", result)
+    print("MSE to en:", mse_to_en)
+    print("MSE to de:", mse_to_de)
+    print("MSE result:", result_by_mse)
 
     assert result, "Detection result is None"
+    assert result_by_mse, "MSE detection result is None"
 
 
 if __name__ == "__main__":
