@@ -87,7 +87,7 @@ def calculate_frequencies(tokens: Sequence[str]) -> dict[str, float] | None:
     if not all(isinstance(token, str) for token in tokens):
         return None
 
-    if not len(tokens):
+    if not tokens:
         return {}
 
     frequencies = {}
@@ -327,16 +327,26 @@ def calculate_mse(predicted: Sequence[float], actual: Sequence[float]) -> float 
     if len(predicted) != len(actual):
         return None
 
-    if not all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in predicted):
+    if not all(
+        isinstance(value, (int, float)) and not isinstance(value, bool)
+        for value in predicted
+    ):
         return None
 
-    if not all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in actual):
+    if not all(
+        isinstance(value, (int, float)) and not isinstance(value, bool)
+        for value in actual
+    ):
         return None
 
     if not predicted:
         return 0.0
 
-    return sum((predicted[index] - actual[index]) ** 2 for index in range(len(predicted))) / len(predicted)
+    mse_value: float = (
+        sum((predicted[index] - actual[index]) ** 2 for index in range(len(predicted)))
+        / len(predicted)
+    )
+    return mse_value
 
 
 def compare_profiles_by_mse(
@@ -407,7 +417,10 @@ def detect_language_by_mse(
     if score_2 < score_1:
         return profile_2[0]
 
-    return min(profile_1[0], profile_2[0])
+    return min(
+        profile_1[0],
+        profile_2[0],
+    )
 
 
 # Mark 10
