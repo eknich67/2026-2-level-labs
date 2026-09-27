@@ -6,9 +6,7 @@ Language detection starter.
 
 from lab_1_classify_profile.main import (
     calculate_frequencies,
-    compare_profiles_by_mse,
     create_language_profile,
-    detect_language_by_mse,
     detect_language_by_top_n,
     get_top_n_words,
     remove_stop_words,
@@ -70,19 +68,9 @@ def main() -> None:
     if result is None:
         raise TypeError("Top-n language detection failed")
 
-    mse_to_en = compare_profiles_by_mse(unknown_profile, en_profile)
-    mse_to_de = compare_profiles_by_mse(unknown_profile, de_profile)
-    result_by_mse = detect_language_by_mse(unknown_profile, en_profile, de_profile)
-    if result_by_mse is None:
-        raise TypeError("MSE language detection failed")
-
     print("Top-n result:", result)
-    print("MSE to en:", mse_to_en)
-    print("MSE to de:", mse_to_de)
-    print("MSE result:", result_by_mse)
 
     assert result, "Detection result is None"
-    assert result_by_mse, "MSE detection result is None"
 
 
 if __name__ == "__main__":
