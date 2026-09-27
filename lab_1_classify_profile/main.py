@@ -32,11 +32,7 @@ def tokenize(text: str) -> Sequence[str] | None:
     tokens = []
 
     for part in text.lower().split():
-        current_token = ""
-
-        for char in part:
-            if char.isalpha():
-                current_token = current_token + char
+        current_token = "".join(char for char in part if char.isalpha())
 
         if current_token:
             tokens.append(current_token)
@@ -56,10 +52,10 @@ def remove_stop_words(tokens: Sequence[str], stop_words: Sequence[str]) -> Seque
         Sequence[str] | None: Sequence of tokens without stop words.
         Returns None in case of incorrect input types.
     """
-    if not isinstance(tokens, (list, tuple)):
+    if not isinstance(tokens, Sequence) or isinstance(tokens, str):
         return None
 
-    if not isinstance(stop_words, (list, tuple)):
+    if not isinstance(stop_words, Sequence) or isinstance(stop_words, str):
         return None
 
     if not all(isinstance(token, str) for token in tokens):
@@ -81,7 +77,7 @@ def calculate_frequencies(tokens: Sequence[str]) -> dict[str, float] | None:
         dict[str, float] | None: Dictionary with frequencies.
         Returns None in case of incorrect input types.
     """
-    if not isinstance(tokens, (list, tuple)):
+    if not isinstance(tokens, Sequence) or isinstance(tokens, (str, bytes)):
         return None
 
     if not all(isinstance(token, str) for token in tokens):
@@ -91,12 +87,10 @@ def calculate_frequencies(tokens: Sequence[str]) -> dict[str, float] | None:
         return {}
 
     frequencies = {}
+    token_frequency = 1 / len(tokens)
 
     for token in tokens:
-        frequencies[token] = frequencies.get(token, 0) + 1
-
-    for token in frequencies:
-        frequencies[token] = frequencies[token] / len(tokens)
+        frequencies[token] = frequencies.get(token, 0.0) + token_frequency
 
     return frequencies
 
@@ -145,7 +139,8 @@ def create_language_profile(
     if (
         not isinstance(language, str)
         or not isinstance(text, str)
-        or not isinstance(stop_words, (list, tuple))
+        or not isinstance(stop_words, Sequence)
+        or isinstance(stop_words, (str, bytes))
     ):
         return None
 
@@ -298,8 +293,10 @@ def calculate_mse(predicted: Sequence[float], actual: Sequence[float]) -> float 
         In case of empty inputs, returns 0.0.
     """
     if (
-        not isinstance(predicted, (list, tuple))
-        or not isinstance(actual, (list, tuple))
+        not isinstance(predicted, Sequence)
+        or isinstance(predicted, (str, bytes))
+        or not isinstance(actual, Sequence)
+        or isinstance(actual, (str, bytes))
         or len(predicted) != len(actual)
         or not all(
             isinstance(value, (int, float)) and not isinstance(value, bool)
