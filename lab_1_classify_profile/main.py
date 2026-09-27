@@ -246,9 +246,7 @@ def compare_profiles_by_top_n(
     if compare_top_words is None:
         return None
 
-    common_words = sum(word in compare_top_words for word in unknown_top_words)
-
-    return common_words / len(unknown_top_words)
+    return len(set(unknown_top_words) & set(compare_top_words)) / len(unknown_top_words)
 
 
 def detect_language_by_top_n(
@@ -294,13 +292,9 @@ def detect_language_by_top_n(
     if score_1 is None or score_2 is None:
         return None
 
-    if score_1 > score_2:
-        return profile_1[0]
-
-    if score_2 > score_1:
-        return profile_2[0]
-
-    return profile_1[0] if profile_1[0] < profile_2[0] else profile_2[0]
+    return min(
+        ((-score_1, profile_1[0]), (-score_2, profile_2[0]))
+    )[1]
 
 # Mark 8
 
@@ -342,11 +336,13 @@ def calculate_mse(predicted: Sequence[float], actual: Sequence[float]) -> float 
     if not predicted:
         return 0.0
 
-    mse_value: float = (
-        sum((predicted[index] - actual[index]) ** 2 for index in range(len(predicted)))
+    return float(
+        sum(
+            (predicted[index] - actual[index]) ** 2
+            for index in range(len(predicted))
+        )
         / len(predicted)
     )
-    return mse_value
 
 
 def compare_profiles_by_mse(
@@ -374,8 +370,11 @@ def compare_profiles_by_mse(
     compare_frequencies = profile_to_compare[1]
     all_tokens = sorted(set(unknown_frequencies) | set(compare_frequencies))
 
-    unknown_values = [unknown_frequencies.get(token, 0.0) for token in all_tokens]
-    compare_values = [compare_frequencies.get(token, 0.0) for token in all_tokens]
+    unknown_values = []
+    compare_values = []
+    for token in all_tokens:
+        unknown_values.append(unknown_frequencies.get(token, 0.0))
+        compare_values.append(compare_frequencies.get(token, 0.0))
 
     return calculate_mse(compare_values, unknown_values)
 
@@ -411,16 +410,7 @@ def detect_language_by_mse(
     if score_1 is None or score_2 is None:
         return None
 
-    if score_1 < score_2:
-        return profile_1[0]
-
-    if score_2 < score_1:
-        return profile_2[0]
-
-    return min(
-        profile_1[0],
-        profile_2[0],
-    )
+    return min((score_1, profile_1[0]), (score_2, profile_2[0]))[1]
 
 
 # Mark 10
