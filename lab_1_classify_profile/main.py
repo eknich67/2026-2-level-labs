@@ -142,13 +142,11 @@ def create_language_profile(
         ProfileType | None: Language profile.
         Returns None in case of incorrect input types.
     """
-    if not isinstance(language, str):
-        return None
-
-    if not isinstance(text, str):
-        return None
-
-    if not isinstance(stop_words, (list, tuple)):
+    if (
+        not isinstance(language, str)
+        or not isinstance(text, str)
+        or not isinstance(stop_words, (list, tuple))
+    ):
         return None
 
     tokens = tokenize(text)
@@ -181,33 +179,20 @@ def check_profile(profile: ProfileType) -> bool:
         otherwise returns False.
     """
 
-    if not isinstance(profile, tuple):
-        return False
-
-    if len(profile) != 3:
+    if not isinstance(profile, tuple) or len(profile) != 3:
         return False
 
     language, frequencies, number_of_tokens = profile
 
-    if not isinstance(language, str):
-        return False
-
-    if not isinstance(frequencies, dict):
-        return False
-
-    if not isinstance(number_of_tokens, int) or isinstance(number_of_tokens, bool):
-        return False
-
-    if number_of_tokens < 0:
-        return False
-
-    if not all(isinstance(word, str) for word in frequencies):
-        return False
-
-    if not all(isinstance(frequencies[word], float) for word in frequencies):
-        return False
-
-    return True
+    return (
+        isinstance(language, str)
+        and isinstance(frequencies, dict)
+        and isinstance(number_of_tokens, int)
+        and not isinstance(number_of_tokens, bool)
+        and number_of_tokens >= 0
+        and all(isinstance(word, str) for word in frequencies)
+        and all(isinstance(frequencies[word], float) for word in frequencies)
+    )
 
 
 def compare_profiles_by_top_n(
@@ -312,24 +297,18 @@ def calculate_mse(predicted: Sequence[float], actual: Sequence[float]) -> float 
         Returns None in case of incorrect input types or mismatched length.
         In case of empty inputs, returns 0.0.
     """
-    if not isinstance(predicted, (list, tuple)):
-        return None
-
-    if not isinstance(actual, (list, tuple)):
-        return None
-
-    if len(predicted) != len(actual):
-        return None
-
-    if not all(
-        isinstance(value, (int, float)) and not isinstance(value, bool)
-        for value in predicted
-    ):
-        return None
-
-    if not all(
-        isinstance(value, (int, float)) and not isinstance(value, bool)
-        for value in actual
+    if (
+        not isinstance(predicted, (list, tuple))
+        or not isinstance(actual, (list, tuple))
+        or len(predicted) != len(actual)
+        or not all(
+            isinstance(value, (int, float)) and not isinstance(value, bool)
+            for value in predicted
+        )
+        or not all(
+            isinstance(value, (int, float)) and not isinstance(value, bool)
+            for value in actual
+        )
     ):
         return None
 
