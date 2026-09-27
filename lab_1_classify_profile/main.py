@@ -203,13 +203,12 @@ def compare_profiles_by_top_n(
         float | None: The distance between profiles.
         Returns None in case of incorrect input types.
     """
-    if not check_profile(unknown_profile):
-        return None
-
-    if not check_profile(profile_to_compare):
-        return None
-
-    if not isinstance(top_n, int) or top_n <= 0:
+    if (
+        not check_profile(unknown_profile)
+        or not check_profile(profile_to_compare)
+        or not isinstance(top_n, int)
+        or top_n <= 0
+    ):
         return None
 
     unknown_frequencies = unknown_profile[1]
@@ -244,16 +243,13 @@ def detect_language_by_top_n(
         str | None: Unknown profile language.
         Returns None in case of incorrect input types.
     """
-    if not check_profile(unknown_profile):
-        return None
-
-    if not check_profile(profile_1):
-        return None
-
-    if not check_profile(profile_2):
-        return None
-
-    if not isinstance(top_n, int) or top_n <= 0:
+    if (
+        not check_profile(unknown_profile)
+        or not check_profile(profile_1)
+        or not check_profile(profile_2)
+        or not isinstance(top_n, int)
+        or top_n <= 0
+    ):
         return None
 
     score_1 = compare_profiles_by_top_n(
@@ -335,10 +331,10 @@ def compare_profiles_by_mse(
         float | None: The distance between the profiles.
         In case of corrupt input arguments or invalid profile structure, None is returned.
     """
-    if not check_profile(unknown_profile):
-        return None
-
-    if not check_profile(profile_to_compare):
+    if (
+        not check_profile(unknown_profile)
+        or not check_profile(profile_to_compare)
+    ):
         return None
 
     unknown_frequencies = unknown_profile[1]
@@ -370,13 +366,11 @@ def detect_language_by_mse(
         str | None: Unknown profile language.
         Returns None in case of incorrect input types.
     """
-    if not check_profile(unknown_profile):
-        return None
-
-    if not check_profile(profile_1):
-        return None
-
-    if not check_profile(profile_2):
+    if (
+        not check_profile(unknown_profile)
+        or not check_profile(profile_1)
+        or not check_profile(profile_2)
+    ):
         return None
 
     score_1 = compare_profiles_by_mse(unknown_profile, profile_1)
