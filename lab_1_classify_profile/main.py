@@ -110,7 +110,7 @@ def get_top_n_words(freq_dict: dict[str, float], top_n: int) -> Sequence[str] | 
     if not isinstance(freq_dict, dict):
         return None
 
-    if not isinstance(top_n, int) or isinstance(top_n, bool) or top_n <= 0:
+    if not isinstance(top_n, int) or top_n <= 0:
         return None
 
     return sorted(
@@ -183,7 +183,6 @@ def check_profile(profile: ProfileType) -> bool:
         isinstance(language, str)
         and isinstance(frequencies, dict)
         and isinstance(number_of_tokens, int)
-        and not isinstance(number_of_tokens, bool)
         and number_of_tokens >= 0
         and all(isinstance(word, str) for word in frequencies)
         and all(isinstance(frequencies[word], float) for word in frequencies)
@@ -210,7 +209,7 @@ def compare_profiles_by_top_n(
     if not check_profile(profile_to_compare):
         return None
 
-    if not isinstance(top_n, int) or isinstance(top_n, bool) or top_n <= 0:
+    if not isinstance(top_n, int) or top_n <= 0:
         return None
 
     unknown_frequencies = unknown_profile[1]
@@ -254,7 +253,7 @@ def detect_language_by_top_n(
     if not check_profile(profile_2):
         return None
 
-    if not isinstance(top_n, int) or isinstance(top_n, bool) or top_n <= 0:
+    if not isinstance(top_n, int) or top_n <= 0:
         return None
 
     score_1 = compare_profiles_by_top_n(
@@ -299,11 +298,11 @@ def calculate_mse(predicted: Sequence[float], actual: Sequence[float]) -> float 
         or isinstance(actual, (str, bytes))
         or len(predicted) != len(actual)
         or not all(
-            isinstance(value, (int, float)) and not isinstance(value, bool)
+            isinstance(value, (int, float))
             for value in predicted
         )
         or not all(
-            isinstance(value, (int, float)) and not isinstance(value, bool)
+            isinstance(value, (int, float))
             for value in actual
         )
     ):
