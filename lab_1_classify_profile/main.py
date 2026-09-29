@@ -39,7 +39,6 @@ def tokenize(text: str) -> Sequence[str] | None:
 
 
 def remove_stop_words(tokens: Sequence[str], stop_words: Sequence[str]) -> Sequence[str] | None:
-
     """
     Removes stop words
 
@@ -196,20 +195,6 @@ def check_profile(profile: ProfileType) -> bool:
 
     return True
 
-    if not isinstance(profile, tuple) or len(profile) != 3:
-        return False
-
-    language, frequencies, number_of_tokens = profile
-
-    return (
-        isinstance(language, str)
-        and isinstance(frequencies, dict)
-        and isinstance(number_of_tokens, int)
-        and number_of_tokens >= 0
-        and all(isinstance(word, str) for word in frequencies)
-        and all(isinstance(frequencies[word], float) for word in frequencies)
-    )
-
 
 def compare_profiles_by_top_n(
     unknown_profile: ProfileType, profile_to_compare: ProfileType, top_n: int
@@ -297,24 +282,6 @@ def detect_language_by_top_n(
 
     return sorted_list[0]
 
-    score_1 = compare_profiles_by_top_n(
-        unknown_profile,
-        profile_1,
-        top_n
-    )
-
-    score_2 = compare_profiles_by_top_n(
-        unknown_profile,
-        profile_2,
-        top_n
-    )
-
-    if score_1 is None or score_2 is None:
-        return None
-
-    return min(
-        ((-score_1, profile_1[0]), (-score_2, profile_2[0]))
-    )[1]
 
 # Mark 8
 
