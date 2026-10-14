@@ -18,6 +18,20 @@ def main() -> None:
     result = None
     assert result, "Translation not working"
 
+word_frequencies = collect_frequencies(text, start_of_word=None, end_of_word="</s>")
+assert word_frequencies is not None, "Word frequencies should be built successfully"
+
+trained_tokens = train(word_frequencies, 100)
+assert trained_tokens is not None, "BPE training should produce a vocabulary"
+
+result = tuple(token for token in trained_tokens if len(token) > 1)
+print(f"Total tokens after training: {len(trained_tokens)}")
+print(f"Merged tokens found: {len(result)}")
+print("First merged tokens:")
+for token in result[:10]:
+    print(token)
+assert result, "Translation not working"
+
 
 if __name__ == "__main__":
     main()
