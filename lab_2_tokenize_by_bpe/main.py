@@ -36,7 +36,7 @@ def prepare_word(
         prepared.insert(0, start_of_word)
     if end_of_word is not None:
         prepared.append(end_of_word)
-    return prepared
+    return tuple(prepared)
 
 
 def collect_frequencies(
