@@ -206,6 +206,21 @@ def get_vocabulary(
 
     In case of corrupt input arguments, None is returned
     """
+    if not isinstance(word_frequencies, dict) or not isinstance(unknown_token, str):
+        return None
+
+    tokens = {unknown_token}
+    for word, count in word_frequencies.items():
+        if not isinstance(word, tuple) or not all(isinstance(token, str) for token in word):
+            return None
+        if not isinstance(count, int) or isinstance(count, bool):
+            return None
+        tokens.update(word)
+        for token in word:
+            tokens.update(token)
+
+    sorted_tokens = sorted(tokens, key=lambda token: (-len(token), token))
+    return {token: index for index, token in enumerate(sorted_tokens)}
 
 
 def decode(
@@ -227,6 +242,36 @@ def decode(
 
     In case of corrupt input arguments, None is returned
     """
+    if not isinstance(encoded_text, list):
+        return None
+    if not isinstance(vocabulary, dict):
+        return None
+    if end_of_word_token is not None and not isinstance(end_of_word_token, str):
+        return None
+
+    tokens_by_id = {}
+    for token, token_id in vocabulary.items():
+        if not isinstance(token, str):
+            return None
+        if not isinstance(token_id, int) or isinstance(token_id, bool):
+            return None
+        if token_id in tokens_by_id:
+            return None
+        tokens_by_id[token_id] = token
+
+    decoded_tokens = []
+    for token_id in encoded_text:
+        if not isinstance(token_id, int) or isinstance(token_id, bool):
+            return None
+        token = tokens_by_id.get(token_id)
+        if token is None:
+            return None
+        if end_of_word_token is not None:
+            decoded_tokens.append(token.replace(end_of_word_token, " "))
+        else:
+            decoded_tokens.append(token)
+
+    return "".join(decoded_tokens)
 
 
 def tokenize_word(
