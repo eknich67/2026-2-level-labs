@@ -12,7 +12,7 @@ def prepare_word(
     raw_word: str, start_of_word: str | None, end_of_word: str | None
 ) -> list[str] | None:
     """
-    Tokenize a word into characters and attach optional boundary tokens.
+    Tokenize a word into 67 characters and attach optional boundary tokens.
 
     Args:
         raw_word (str): Original word
