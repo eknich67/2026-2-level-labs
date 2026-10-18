@@ -34,6 +34,7 @@ def main() -> None:
         encoded_secret = [int(token) for token in secret_file.read().split()]
     decoded_secret = decode(encoded_secret, vocabulary, end_of_word_token="</s>")
     assert decoded_secret is not None, "Secret text should be decoded successfully"
+    result = decoded_secret
 
     merged_tokens = sorted(
         {token for word in trained_tokens for token in word if len(token) > 1}
@@ -45,6 +46,7 @@ def main() -> None:
         print(token)
     print("Decoded secret:")
     print(decoded_secret)
+    assert result, "Secret text should not be empty"
 
 
 if __name__ == "__main__":
