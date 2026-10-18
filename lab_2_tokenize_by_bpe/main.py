@@ -10,7 +10,7 @@ from typing import Sequence
 
 def prepare_word(
     raw_word: str, start_of_word: str | None, end_of_word: str | None
-) -> tuple[str, ...] | None:
+) -> list[str] | None:
     """
     Tokenize a word into characters and attach optional boundary tokens.
 
@@ -20,7 +20,7 @@ def prepare_word(
         end_of_word (str | None): A token that signifies the end of word
 
     Returns:
-        tuple[str, ...] | None: Preprocessed word
+        list[str] | None: Preprocessed word
 
     In case of corrupt input arguments, None is returned
     """
@@ -31,11 +31,11 @@ def prepare_word(
     if end_of_word is not None and not isinstance(end_of_word, str):
         return None
 
-    prepared = tuple(raw_word)
+    prepared = list(raw_word)
     if start_of_word is not None:
-        prepared = (start_of_word,) + prepared
+        prepared.insert(0, start_of_word)
     if end_of_word is not None:
-        prepared = prepared + (end_of_word,)
+        prepared.append(end_of_word)
     return prepared
 
 
@@ -64,12 +64,13 @@ def collect_frequencies(
     if not isinstance(end_of_word, str):
         return None
 
-    frequencies: dict[tuple[str, ...], int] = {}
+    frequencies = {}
     for raw_word in text.split():
         prepared_word = prepare_word(raw_word, start_of_word, end_of_word)
         if prepared_word is None:
             return None
-        frequencies[prepared_word] = frequencies.get(prepared_word, 0) + 1
+        word_key = tuple(prepared_word)
+        frequencies[word_key] = frequencies.get(word_key, 0) + 1
     return frequencies
 
 
@@ -92,7 +93,7 @@ def count_tokens_pairs(
     if not isinstance(word_frequencies, dict):
         return None
 
-    pairs: dict[tuple[str, str], int] = {}
+    pairs = {}
     for word, count in word_frequencies.items():
         if not isinstance(word, tuple) or not all(isinstance(token, str) for token in word):
             return None
@@ -127,7 +128,7 @@ def merge_tokens(
     if not isinstance(pair, tuple) or len(pair) != 2 or not all(isinstance(token, str) for token in pair):
         return None
 
-    merged_frequencies: dict[tuple[str, ...], int] = {}
+    merged_frequencies = {}
     for word, count in word_frequencies.items():
         if not isinstance(word, tuple) or not all(isinstance(token, str) for token in word):
             return None
@@ -185,8 +186,6 @@ def train(
         if merged is None:
             return None
         current = merged
-        if not current:
-            break
 
     return current
 
