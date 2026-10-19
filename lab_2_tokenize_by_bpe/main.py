@@ -173,7 +173,7 @@ def train(
         return None
 
     current = dict(word_frequencies)
-    for _ in range(num_merges):
+    for merge_number in range(num_merges):
         pairs = count_tokens_pairs(current)
         if not pairs:
             break
