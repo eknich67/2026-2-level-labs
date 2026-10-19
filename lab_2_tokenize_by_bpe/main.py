@@ -33,7 +33,7 @@ def prepare_word(
 
     prepared = list(raw_word)
     if start_of_word is not None:
-        prepared.insert(0, start_of_word)
+        prepared = [start_of_word] + prepared
     if end_of_word is not None:
         prepared.append(end_of_word)
     return tuple(prepared)
@@ -97,7 +97,7 @@ def count_tokens_pairs(
     for word, count in word_frequencies.items():
         if not isinstance(word, tuple) or not all(isinstance(token, str) for token in word):
             return None
-        if not isinstance(count, int) or isinstance(count, bool):
+        if not isinstance(count, int):
             return None
 
         for index in range(len(word) - 1):
@@ -132,7 +132,7 @@ def merge_tokens(
     for word, count in word_frequencies.items():
         if not isinstance(word, tuple) or not all(isinstance(token, str) for token in word):
             return None
-        if not isinstance(count, int) or isinstance(count, bool):
+        if not isinstance(count, int):
             return None
 
         tokens = list(word)
@@ -169,7 +169,7 @@ def train(
     """
     if not isinstance(word_frequencies, dict) or word_frequencies is None:
         return None
-    if not isinstance(num_merges, int) or isinstance(num_merges, bool) or num_merges < 0:
+    if not isinstance(num_merges, int) or num_merges < 0:
         return None
 
     current = dict(word_frequencies)
@@ -213,7 +213,7 @@ def get_vocabulary(
     for word, count in word_frequencies.items():
         if not isinstance(word, tuple) or not all(isinstance(token, str) for token in word):
             return None
-        if not isinstance(count, int) or isinstance(count, bool):
+        if not isinstance(count, int):
             return None
         tokens.update(word)
         for token in word:
@@ -253,7 +253,7 @@ def decode(
     for token, token_id in vocabulary.items():
         if not isinstance(token, str):
             return None
-        if not isinstance(token_id, int) or isinstance(token_id, bool):
+        if not isinstance(token_id, int):
             return None
         if token_id in tokens_by_id:
             return None
@@ -261,7 +261,7 @@ def decode(
 
     decoded_tokens = []
     for token_id in encoded_text:
-        if not isinstance(token_id, int) or isinstance(token_id, bool):
+        if not isinstance(token_id, int):
             return None
         token = tokens_by_id.get(token_id)
         if token is None:
