@@ -12,7 +12,7 @@ from typing import Sequence
 
 def prepare_word(
     raw_word: str, start_of_word: str | None, end_of_word: str | None
-) -> list[str] | None:
+) -> tuple[str, ...] | None:
     """
     Tokenize a word into characters and attach optional boundary tokens.
 
@@ -22,7 +22,7 @@ def prepare_word(
         end_of_word (str | None): A token that signifies the end of word
 
     Returns:
-        list[str] | None: Preprocessed word
+        tuple[str, ...] | None: Preprocessed word
 
     In case of corrupt input arguments, None is returned
     """

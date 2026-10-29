@@ -14,9 +14,6 @@ from lab_2_tokenize_by_bpe.main import (
 )
 
 
-from main import collect_frequencies, decode, get_vocabulary, train
-
-
 def main() -> None:
     """
     Launches an implementation
