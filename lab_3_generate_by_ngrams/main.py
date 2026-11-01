@@ -46,7 +46,7 @@ class TextProcessor:
         if not isinstance(text, str):
             return None
 
-        tokens: list[str] = []
+        tokens = []
         word_is_open = False
         for character in text.lower():
             if character.isalpha():
@@ -127,7 +127,7 @@ class TextProcessor:
         if tokenized_text is None:
             return None
 
-        encoded_text: list[int] = []
+        encoded_text = []
         for token in tokenized_text:
             self._put(token)
             token_id = self.get_id(token)
@@ -179,6 +179,27 @@ class TextProcessor:
         Args:
             content (dict): ngrams from external JSON
         """
+        if not isinstance(content, dict):
+            return
+
+        frequencies = content.get("freq")
+        if not isinstance(frequencies, dict):
+            return
+
+        self._storage = {self._end_of_word_token: 0}
+        seen = set()
+
+        for ngram in frequencies:
+            if not isinstance(ngram, str):
+                continue
+            for character in ngram:
+                if not character.isalpha():
+                    continue
+                lowercase = character.lower()
+                if lowercase in seen:
+                    continue
+                seen.add(lowercase)
+                self._storage[lowercase] = len(self._storage)
 
     def _decode(self, corpus: tuple[int, ...]) -> tuple[str, ...] | None:
         """
@@ -196,7 +217,7 @@ class TextProcessor:
         if not isinstance(corpus, tuple) or not corpus:
             return None
 
-        decoded_tokens: list[str] = []
+        decoded_tokens = []
         for token_id in corpus:
             token = self.get_token(token_id)
             if token is None:
