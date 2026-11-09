@@ -100,7 +100,7 @@ class TextProcessor:
 
         In case of corrupt input arguments or arguments not included in storage, None is returned
         """
-        if type(element_id) is not int:
+        if not isinstance(element_id, int):
             return None
         for token, token_id in self._storage.items():
             if token_id == element_id:
@@ -123,6 +123,9 @@ class TextProcessor:
         In case of corrupt input arguments, None is returned.
         In case any of methods used return None, None is returned.
         """
+        if not isinstance(text, str):
+            return None
+
         tokenized_text = self._tokenize(text)
         if tokenized_text is None:
             return None
@@ -167,10 +170,16 @@ class TextProcessor:
         In case of corrupt input arguments, None is returned.
         In case any of methods used return None, None is returned.
         """
+        if not isinstance(encoded_corpus, tuple):
+            return None
+
         decoded_text = self._decode(encoded_corpus)
         if decoded_text is None:
             return None
-        return self._postprocess_decoded_text(decoded_text)
+        processed_text = self._postprocess_decoded_text(decoded_text)
+        if processed_text is None:
+            return None
+        return processed_text
 
     def fill_from_ngrams(self, content: dict) -> None:
         """
@@ -186,20 +195,13 @@ class TextProcessor:
         if not isinstance(frequencies, dict):
             return
 
-        self._storage = {self._end_of_word_token: 0}
-        seen = set()
-
         for ngram in frequencies:
             if not isinstance(ngram, str):
                 continue
             for character in ngram:
                 if not character.isalpha():
                     continue
-                lowercase = character.lower()
-                if lowercase in seen:
-                    continue
-                seen.add(lowercase)
-                self._storage[lowercase] = len(self._storage)
+                self._put(character.lower())
 
     def _decode(self, corpus: tuple[int, ...]) -> tuple[str, ...] | None:
         """
@@ -245,15 +247,23 @@ class TextProcessor:
         if any(not isinstance(token, str) for token in decoded_corpus):
             return None
 
-        text = " ".join(
-            "".join(
+        characters = []
+        pending_space = False
+        for token in decoded_corpus:
+            for character in (
                 " " if token == self._end_of_word_token else token
-                for token in decoded_corpus
-            ).split()
-        )
+            ):
+                if character.isspace():
+                    pending_space = bool(characters)
+                    continue
+                if pending_space:
+                    characters.append(" ")
+                    pending_space = False
+                characters.append(character)
+        text = "".join(characters)
         if not text:
             return None
-        text = text[0].upper() + text[1:]
+        text = text.capitalize()
         if text[-1] != ".":
             text += "."
         return text
