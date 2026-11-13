@@ -169,7 +169,7 @@ class TextProcessor:
         In case of corrupt input arguments, None is returned.
         In case any of methods used return None, None is returned.
         """
-        if not isinstance(encoded_corpus, tuple):
+        if not isinstance(encoded_corpus, tuple) or not encoded_corpus:
             return None
 
         decoded_text = self._decode(encoded_corpus)
@@ -187,7 +187,7 @@ class TextProcessor:
         Args:
             content (dict): ngrams from external JSON
         """
-        if not isinstance(content, dict):
+        if not isinstance(content, dict) or not content:
             return
 
         frequencies = content.get("freq")
@@ -405,7 +405,6 @@ class NGramLanguageModel:
         """
         if (
             not isinstance(sequence, tuple)
-            or not sequence
             or any(not isinstance(token, int) for token in sequence)
             or not isinstance(self.__n_gram_size, int)
             or self.__n_gram_size < 2
@@ -437,7 +436,7 @@ class NGramLanguageModel:
         if (
             not isinstance(encoded_corpus, tuple)
             or not encoded_corpus
-            or any(not isinstance(token, int)     for token in encoded_corpus)
+            or any(not isinstance(token, int) for token in encoded_corpus)
             or not isinstance(self.__n_gram_size, int)
             or self.__n_gram_size < 2
         ):
