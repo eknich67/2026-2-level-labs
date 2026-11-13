@@ -43,22 +43,19 @@ class TextProcessor:
         In case of corrupt input arguments, None is returned.
         In case any of methods used return None, None is returned.
         """
-        if not isinstance(text, str):
+        if not isinstance(text, str) or not text:
             return None
 
         tokens = []
-        word_is_open = False
         for character in text.lower():
             if character.isalpha():
                 tokens.append(character)
-                word_is_open = True
             elif character.isdigit():
                 continue
             elif character == "-":
                 continue
-            elif word_is_open:
+            elif tokens and tokens[-1] != self._end_of_word_token:
                 tokens.append(self._end_of_word_token)
-                word_is_open = False
 
         if not tokens:
             return None
@@ -77,7 +74,7 @@ class TextProcessor:
         In case of corrupt input arguments or arguments not included in storage,
         None is returned
         """
-        if not isinstance(element, str):
+        if not isinstance(element, str) or not element:
             return None
         return self._storage.get(element)
 
@@ -125,7 +122,7 @@ class TextProcessor:
         In case of corrupt input arguments, None is returned.
         In case any of methods used return None, None is returned.
         """
-        if not isinstance(text, str):
+        if not isinstance(text, str) or not text:
             return None
 
         tokenized_text = self._tokenize(text)
@@ -198,7 +195,7 @@ class TextProcessor:
             return
 
         for ngram in frequencies:
-            if not isinstance(ngram, str):
+            if not isinstance(ngram, str) or not ngram:
                 continue
             for character in ngram:
                 if not character.isalpha():
@@ -246,23 +243,14 @@ class TextProcessor:
         """
         if not isinstance(decoded_corpus, tuple) or not decoded_corpus:
             return None
-        if any(not isinstance(token, str) for token in decoded_corpus):
+        if any(not isinstance(token, str) or not token for token in decoded_corpus):
             return None
 
-        characters = []
-        pending_space = False
-        for token in decoded_corpus:
-            for character in (
-                " " if token == self._end_of_word_token else token
-            ):
-                if character.isspace():
-                    pending_space = bool(characters)
-                    continue
-                if pending_space:
-                    characters.append(" ")
-                    pending_space = False
-                characters.append(character)
-        text = "".join(characters)
+        text = (
+            "".join(list(decoded_corpus))
+            .replace(self._end_of_word_token, " ")
+            .strip()
+        )
         if not text:
             return None
         text = text.capitalize()
@@ -396,9 +384,7 @@ class NGramLanguageModel:
         context_counts = {}
         for n_gram in n_grams:
             n_gram_counts[n_gram] = n_gram_counts.get(n_gram, 0) + 1
-            context = n_gram[:-1]
-            context_counts[context] = context_counts.get(context, 0) + 1
-
+            context_counts[n_gram[:-1]] = context_counts.get(n_gram[:-1], 0) + 1
         self._n_gram_frequencies = {
             n_gram: count / context_counts[n_gram[:-1]]
             for n_gram, count in n_gram_counts.items()
@@ -501,6 +487,7 @@ class GreedyTextGenerator:
         """
         if (
             not isinstance(prompt, str)
+            or not prompt
             or not isinstance(seq_len, int)
             or seq_len <= 0
         ):
