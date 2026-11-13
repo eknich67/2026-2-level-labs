@@ -57,6 +57,9 @@ class TextProcessor:
             elif tokens and tokens[-1] != self._end_of_word_token:
                 tokens.append(self._end_of_word_token)
 
+        if tokens and tokens[-1] != self._end_of_word_token:
+            tokens.append(self._end_of_word_token)
+
         if not tokens:
             return None
         return tuple(tokens)
