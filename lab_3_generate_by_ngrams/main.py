@@ -50,8 +50,6 @@ class TextProcessor:
         for character in text.lower():
             if character.isalpha():
                 tokens.append(character)
-            elif character.isdigit():
-                continue
             elif character == "-":
                 continue
             elif tokens and tokens[-1] != self._end_of_word_token:
